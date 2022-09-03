@@ -1,4 +1,4 @@
-function faceak()
+function facek()
     pkt = {}
     pkt.type = 0
     pkt.posX = getBot().x
@@ -291,6 +291,8 @@ function dropseed()
             sleep(500)
         end
     end
+    facek()
+    sleep(800)
     dropp(BlockID+1,findItem(BlockID+1))
     sleep(2000)
     while findItem(BlockID+1) >= total_drop_seed do
@@ -324,6 +326,8 @@ function dropseed2()
             sleep(500)
         end
     end
+    facek()
+    sleep(800)
     dropp(BlockID+1,findItem(BlockID+1))
     sleep(2000)
     while findItem(BlockID+1) > 0 do
