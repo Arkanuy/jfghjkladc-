@@ -696,7 +696,7 @@ oks = false
 wile = true
 function getown()
     for _, player in pairs(getPlayers()) do 
-        if player.name == "Zhutbot8" or player.name == "ArkanjutGG3" then
+        if player.name == "Zhutbot8" or player.name == "ArkanjutGG3" or player.name == "ArkanjutGG4" then
             oks =true
             sleep(3000)
             say("Owner Found")
