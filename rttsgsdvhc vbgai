@@ -1,1 +1,723 @@
-say("memek")
+function facek()
+    pkt = {}
+    pkt.type = 0
+    pkt.posX = getBot().x
+    pkt.posY = getBot().y
+    pkt.flags = 48
+    sendPacketRaw(pkt)
+    return
+end
+
+function wp(world,id)
+    while getWorld().name ~= world:upper() do
+        sendPacket(3,"action|join_request\nname|"..string.upper(world))
+        sleep(Delay_Join_World)
+    end
+    sleep(4000)
+    move(3,0)
+    sleep(400)
+    while getTile(math.floor(getBot().x / 32),math.floor(getBot().y / 32)).fg == 6 do 
+        sleep(3000)
+        sendPacket(3,"action|join_request\nname|"..world.."|"..id)
+        sleep(3000)
+    end
+end
+
+function fp(x,y)
+    findPath(x,y,200)
+    sleep(100)
+end
+
+function harvest()
+    collectSet(true,3)
+    for _, tile in pairs(getTiles()) do
+        if tile.fg == BlockID+1 and tile.ready and findItem(BlockID) < 185 then
+            findPath(tile.x,tile.y,40)
+            sleep(Delay_Harvest-20)
+            punch(0,0)
+            kabur()
+            sleep(100)
+            automove()
+        end
+    end
+    if findItem(BlockID) >= 185 then
+        gopos()
+        if mode_pnb == 1 then
+            pnb1()
+        elseif mode_pnb == 2 then
+            pnb2()
+        elseif mode_pnb == 3 then
+            pnb3()
+        end
+    end
+end
+
+function trash(id)
+    sendPacket(2,"action|trash\nitemID|"..id)
+    sleep(1000)
+    sendPacket(2,"action|dialog_return\ndialog_name|trash_item\nitemID|"..id.."|\ncount|"..findItem(id))
+    sleep(1500)
+end
+
+function ayotrash()
+    for i, v in ipairs(trash_list) do
+        if findItem(v) > 0 then
+            trash(v)
+            sleep(500)
+        end
+    end
+end
+
+function getcountp()
+    count = 0
+    for _, player in pairs(getPlayers()) do
+        count = count + 1
+    end
+    return count
+end
+
+function kabur()
+    if getcountp() >= max_player_in_world then
+        local bb = getworld() 
+        awl(":eyes: : Total Player in World **["..getWorld().name.."]** = "..getcountp().." People\n:loudspeaker: : Too Many Player in World, Go to **[EXIT]** for "..Delay_Escape.." Seconds","Auto Rotation Farm",15105570)
+        sendPacket(3,"action|join_request\nname|EXIT")
+        sleep(Delay_Escape * 1000)
+        wp(bb,id_door)
+        sleep(1000)
+        harvest()
+    end
+end
+
+function pnb3()
+    collectSet(true,4)
+    gopos()
+    say("Gems : `2"..findItem(112))
+    sleep(200)
+    if findItem(112) >= price * total_buy + 700 and mode_buy_pack == 1 then
+        godrop()
+    end
+    if findItem(BlockID) > 0 then
+        place(BlockID,-1,-1)
+        sleep(100)
+        place(BlockID,0,-1)
+        sleep(100)
+        place(BlockID,1,-1)
+        while findItem(BlockID) > 0 do
+            if findItem(BlockID+1) >= total_drop_seed then
+                dropseed()
+                automove()
+            end
+            automove()
+            kabur()
+            for i=1,Hit do
+                punch(-1,-1)
+                gopos()
+                sleep(Delay_Punch)
+		sleep(20)
+                punch(0,-1)
+                sleep(Delay_Punch)
+		sleep(20)
+                punch(1,-1)
+                sleep(Delay_Punch)
+		sleep(20)
+                automove()
+            end  
+            place(BlockID,-1,-1)
+            sleep(Delay_Place)
+            sleep(30)
+            place(BlockID,0,-1)
+            sleep(Delay_Place)
+            sleep(30)
+            place(BlockID,1,-1)
+            sleep(Delay_Place)
+            sleep(30)
+        end
+    end
+    collectSet(false)
+    cekblock()
+    plant()
+end
+
+function pnb2()
+    collectSet(true,4)
+    gopos()
+    say("Gems : `2"..findItem(112))
+    sleep(200)
+    if findItem(112) >= price * total_buy + 700 and mode_buy_pack == 1 then
+        godrop()
+    end
+    if findItem(BlockID) > 0 then
+        place(BlockID,-1,-1)
+        sleep(150)
+        place(BlockID,0,-1)
+        sleep(150)
+        place(BlockID,1,-1)
+        sleep(150)
+        while findItem(BlockID) > 0 do 
+            gopos()
+            if findItem(BlockID+1) == total_drop_seed then
+                dropseed()
+            end
+            automove()
+            kabur()
+            local posx = math.floor(getBot().x/32)
+            local posy = math.floor(getBot().y/32)
+            while getTile(posx-1,posy-1).fg > 0 or getTile(posx-1,posy-1).bg > 0 do
+                punch(-1,-1)
+                sleep(Delay_Punch)
+                automove()
+                gopos()
+            end
+            place(BlockID,-1,-1)
+            sleep(Delay_Place)
+            sleep(60)
+            while getTile(posx,posy-1).fg > 0 or getTile(posx,posy-1).bg > 0 do
+                punch(0,-1)
+                sleep(Delay_Punch)
+                automove()
+                gopos()
+            end
+            place(BlockID,0,-1)
+            sleep(Delay_Place)
+            sleep(60)
+            while getTile(posx+1,posy-1).fg > 0 or getTile(posx+1,posy-1).bg > 0 do
+                punch(1,-1)
+                sleep(Delay_Punch)
+                automove()
+            gopos()
+            end
+            place(BlockID,1,-1)
+            sleep(Delay_Place)
+            sleep(60)
+        end
+    end
+    collectSet(false)
+    cekblock()
+    plant()
+end 
+
+function pnb1()
+    collectSet(true,2)
+    gopos()
+    say("Gems : `2"..findItem(112))
+    sleep(200)
+    if findItem(112) >= price * total_buy + 700 and mode_buy_pack == 1 then
+        godrop()
+    end 
+    while findItem(BlockID) > 0 do
+        gopos()
+        if findItem(BlockID+1) >= total_drop_seed then
+            dropseed()
+        end 
+        local posx = math.floor(getBot().x/32)
+        local posy = math.floor(getBot().y/32)
+        place(BlockID,0,-1)
+        sleep(Delay_Place)
+        sleep(50)
+        while getTile(posx,posy-1).fg > 0 or getTile(posx,posy-1).bg > 0 do
+            punch(0,-1)
+            kabur()
+            sleep(Delay_Punch)
+            automove()
+            gopos()
+        end
+    end
+    collectSet(false)
+    cekblock()
+end
+
+function cekblock()
+    for _, tile in ipairs(getTiles()) do
+        if tile.fg == BlockID or tile.bg == BlockID then
+            findPath(tile.x,tile.y)
+            sleep(1000)
+            collect(3)
+            if getTile(math.floor(getBot().x/32),math.floor(getBot().y/32)).fg > 0 or getTile(math.floor(getBot().x/32),math.floor(getBot().y/32)).bg > 0 then
+                while getTile(math.floor(getBot().x/32),math.floor(getBot().y/32)).fg > 0 or getTile(math.floor(getBot().x/32),math.floor(getBot().y/32)).bg > 0  do
+                    punch(0,0)
+                    sleep(200)
+                end
+            end
+            collect(2)
+        end
+    end
+    plant()
+end
+
+function gopos()
+    while math.floor(getBot().x/32) ~= coordinate_x-1 or math.floor(getBot().y/32)  ~= coordinate_y-1 do
+        fp(coordinate_x-1,coordinate_y-1)
+        sleep(1300)
+        automove()
+    end
+end 
+
+function plant()
+    collectSet(true, 2)
+    for _, tile in pairs(getTiles()) do
+        if tile.fg == 0 and getTile(tile.x,tile.y+1).fg ~= 0 and getTile(tile.x,tile.y+1).fg ~= BlockID+1 and findItem(BlockID+1) > 0 then
+            findPath(tile.x,tile.y,40)
+            sleep(Delay_Plant)
+            place(BlockID+1,0,0)
+            sleep(80)
+            automove()
+            kabur()
+        end
+    end
+    if take_float then
+        while scanfloat(BlockID) > 0 do
+            takefloat(BlockID)
+        end
+    end
+    harvest()
+end
+
+function dropp(itemid, amount)
+    if findItem(itemid) >= amount then
+        sendPacket(2,"action|drop\nitemID|"..itemid)
+        sleep(1500)
+        sendPacket(2,"action|dialog_return\ndialog_name|drop_item\nitemID|"..itemid.."|\ncount|"..amount)
+        sleep(1000)
+    end
+end
+
+function dropseed()
+    collectSet(false)
+    wseed = getBot().world
+    wp(World_Seed,id_door_seed)
+    for _, tile in pairs(getTiles()) do 
+        if tile.fg == patokan_drop_seed or tile.bg == patokan_drop_seed then
+            findPath(tile.x-1,tile.y)
+            sleep(500)
+        end
+    end
+    dropp(BlockID+1,findItem(BlockID+1))
+    sleep(2000)
+    while findItem(BlockID+1) >= total_drop_seed do
+        move(-1,0)
+        sleep(1500)
+        dropp(BlockID+1,findItem(BlockID+1))
+        sleep(2000)
+    end
+    sleep(2300)
+    awl(":farmer: :"..getBot().name..", (level "..getBot().level..")\n:satellite: :Online, ("..getBot().ping.." ms)\n:gem: :"..findItem(112).."\n:loudspeaker: : Dropping Seed to **["..World_Seed.."]**\n:mega: : Successfully Dropping Seed\n:mag: : Total Dropped Seed in **["..World_Seed.."]** = "..scan(BlockID + 1).."\n<:Timer:1012028563047850065> : Storing seed after "..waktu(),"Auto Rotation Farm\n:earth_asia: Current World ["..wseed.."]","https://www.digitrac.in/pub/media/magefan_blog/Wheat_image_1.jpg","Arkanuy#8243 | Auto Rotation",9807270)
+    sleep(2000)
+    wp(wseed,id_door)
+    sleep(1000)
+    collectSet(true,4)
+    if mode_pnb == 1 then
+        pnb1()
+    elseif mode_pnb == 2 then
+        pnb2()
+    elseif mode_pnb == 3 then
+        pnb3()
+    end    
+end
+
+function dropseed2()
+    collectSet(false)
+    wseed = getBot().world
+    wp(World_Seed,id_door_seed)
+    for _, tile in pairs(getTiles()) do 
+        if tile.fg == patokan_drop_seed or tile.bg == patokan_drop_seed then
+            findPath(tile.x-1,tile.y)
+            sleep(500)
+        end
+    end
+    dropp(BlockID+1,findItem(BlockID+1))
+    sleep(2000)
+    while findItem(BlockID+1) > 0 do
+        move(-1,0)
+        sleep(1500)
+        dropp(BlockID+1,findItem(BlockID+1))
+        sleep(2000)
+    end
+    sleep(2300)
+    awl(":farmer: :"..getBot().name..", (level "..getBot().level..")\n:satellite: :Online, ("..getBot().ping.." ms)\n:gem: :"..findItem(112).."\n:loudspeaker: : Dropping Seed to **["..World_Seed.."]**\n:mega: : Successfully Dropping Seed\n:mag: : Total Dropped Seed in **["..World_Seed.."]** = "..scan(BlockID + 1).."\n<:Timer:1012028563047850065> : Storing seed after "..waktu(),"Auto Rotation Farm\n:earth_asia: Current World ["..wseed.."]","https://www.digitrac.in/pub/media/magefan_blog/Wheat_image_1.jpg","Arkanuy#8243 | Auto Rotation",9807270)
+    sleep(2000)
+    wp(wseed,id_door)
+    sleep(1000)
+    collectSet(true,4)
+    if mode_pnb == 1 then
+        pnb1()
+    elseif mode_pnb == 2 then
+        pnb2()
+    elseif mode_pnb == 3 then
+        pnb3()
+    end    
+end
+
+
+function scan(id)
+    count = 0
+    for _, object in pairs(getObjects()) do
+        if object.id == id then
+        count = count + object.count
+        end
+    end
+    return count
+end
+
+function automove()
+    if getBot().state ~= 5 then
+        awl2(":farmer: :"..getBot().name.."\n:satellite: :Disconnected\n:loudspeaker: :Trying to reconnected again","Auto Rotation Farm\n:satellite: : DISCONNECTED !!!!!!!!!!!!!!","https://c.tenor.com/HWdSvD9Wg20AAAAM/one-punch-man-ok.gif","Arkanuy#8243 | Auto Rotation",15158332)
+        while getBot().state ~= 5 do
+            connect()
+            sleep(50000)
+            if getBot().state == 5 then
+                awl2(":farmer: :"..getBot().name.."\n:satellite: :Online\n:loudspeaker: :Successfully Recconected Again","Auto Rotation Farm\n:satellite: : CONNECTED AGAIN !!!!!","https://c.tenor.com/IqiptPCV4nsAAAAM/saitama-yeah.gif","Arkanuy#8243 | Auto Rotation",3066993)
+            end
+        end
+    end
+    while getTile(math.floor(getBot().x/32),math.floor(getBot().y/32)).fg == 6 do
+        warp(getWorld().name.."|"..id_door)
+        sleep(1000)
+        move(4,0)
+        sleep(500)
+    end
+end
+
+function godrop()
+    wpack = getBot().world
+    collectSet(false)
+    wp(World_Pack,id_door_pack)
+    for _, tile in pairs(getTiles()) do
+        if tile.fg == patokan_drop_pack or tile.bg == patokan_drop_pack then
+            findPath(tile.x,tile.y)
+            sleep(400)
+        end
+    end
+    buypack()
+    sleep(1000)
+    facek()
+    sleep(1000)
+    droppack()
+    sleep(2300)
+    awl(":farmer: :"..getBot().name..", (level "..getBot().level..")\n:satellite: :Online, ("..getBot().ping.." ms)\n:gem: :"..findItem(112).."\n:loudspeaker: :Buying Pack\n:package: :"..pack.."\n:toolbox: :Successfully Buying Pack\n<:Timer:1012028563047850065> : Buying Pack After : "..waktu(),"Auto Rotation Farm\n:earth_asia: Current World : **["..wpack.."]**","https://c.tenor.com/lD3Q3jF-MWoAAAAC/saitama-one-punch-man.gif","Arkanuy#8243 | Auto Rotation",16705372)
+    wp(wpack,id_door)
+    sleep(1000)
+    gopos()
+    collectSet(true,4)
+end
+
+function buypack()
+    while findItem(112) > price do
+        sendPacket(2,"action|buy\nitem|"..pack)
+        sleep(1800)
+        if findItem(item_pack[1]) < 1 then
+            sendPacket(2,"action|buy\nitem|upgrade_backpack")
+            sleep(1500)
+        end
+    end
+end
+
+
+function droppack()
+    for i = 1,2 do
+        for z, z in ipairs(item_pack) do
+            if findItem(z) >= 1 then
+                dropp(z,findItem(z))
+                sleep(1500)
+                move(0,-1)
+                sleep(500)
+                while findItem(z) >= 1 do
+                    move(0,-1)
+                    sleep(1500)
+                    dropp(z,findItem(z))
+                    sleep(1000)
+                    if findItem(5030) >= 1 then
+                        drop(5030)
+                        sleep(500)
+                    end
+                end
+            end
+        end
+    end
+end
+
+function takefloat(id)
+    collectSet(true,4)
+    for _, obj in pairs(getObjects()) do
+        if obj.id == id then
+            findPath(math.floor(obj.x/32),math.floor(obj.y/32))
+            sleep(200)
+        end
+        if findItem(BlockID) >= 185 then
+            if mode_pnb == 1 then
+                pnb1()
+            elseif mode_pnb == 2 then
+                pnb2()
+            elseif mode_pnb == 3 then
+                pnb3()
+            end
+        end
+    end
+end
+
+function scanfloat(ID) 
+    count = 0
+    for _, obj in pairs(getObjects()) do
+        if obj.id == ID then
+            count = count + obj.count
+        end
+    end
+    return count
+end
+
+
+function auto()
+    tw = 0
+    for k, e in pairs(World) do
+        tw = tw + 1
+        t = os.time()
+             function waktu()
+                 time = os.time() - t
+                 jam = math.floor(time/3600)
+                 menit = math.floor(time%3600/60) 
+                 detik = time%3600%60
+                 str = jam.." Hours "..menit.." Minutes "..detik.." Seconds"
+                if time < 60 then
+                    return str:sub(19)
+                elseif time < 3600 then
+                    return str:sub(9)
+                end
+                return str
+            end
+        say("Script by Arkanuy#8234")
+        sleep(3000)
+      	warp(e)
+	sleep(2000)
+        say("wait trash item")
+        ayotrash()
+        sleep(1300)
+        say("start")
+	sleep(3000)
+	wp(e,id_door)
+	sleep(1000)
+        if BlockID == 4584 then
+            awl(":farmer: :"..getBot().name..", (level "..getBot().level..")\n:gem: :"..findItem(112).."\n:satellite: :Online, ("..getBot().ping.." ms)\n:loudspeaker: :Start Farming at **["..getBot().world.."]**\n:deciduous_tree: :"..sready().." Pepper Tree Ready\n:seedling: :"..snready() - sready().." Pepper Tree Not Ready\n:rock: :"..scanb(3918).." Fossil Rock\n<:Timer:1012028563047850065> : Bot Start Auto farm after "..waktu(),"Auto Rotation Farm\n:globe_with_meridians: : "..tw.."/"..#World,"https://blockcorp.xyz/static/images/services/pepper-tree.png","Arkanuy#8243 | Auto Rotation",1752220)
+            sleep(3000)
+        elseif BlockID == 5666 then
+            awl(":farmer: :"..getBot().name..", (level "..getBot().level..")\n:gem: :"..findItem(112).."\n:satellite: :Online, ("..getBot().ping.." ms)\n:loudspeaker: :Start Farming at **["..getBot().world.."]**\n:deciduous_tree: :"..sready().." Laser Grid Tree Ready\n:seedling: :"..snready() - sready().." Laser Grid Tree Not Ready\n:rock: :"..scanb(3918).." Fossil Rock\n<:Timer:1012028563047850065> : Bot Start Auto farm after "..waktu(),"Auto Rotation Farm\n:globe_with_meridians: : "..tw.."/"..#World,"https://blockcorp.xyz/static/images/services/laser-grid.png","Arkanuy#8243 | Auto Rotation",1752220)
+            sleep(3000)
+        elseif BlockID == 3004 then 
+            awl(":farmer: :"..getBot().name..", (level "..getBot().level..")\n:gem: :"..findItem(112).."\n:satellite: :Online, ("..getBot().ping.." ms)\n:loudspeaker: :Start Farming at **["..getBot().world.."]**\n:deciduous_tree: :"..sready().." Fish Tank Tree Ready\n:seedling: :"..snready() - sready().." Fish Tank Tree Not Ready\n:rock: :"..scanb(3918).." Fossil Rock\n<:Timer:1012028563047850065> : Bot Start Auto farm after "..waktu(),"Auto Rotation Farm\n:globe_with_meridians: : "..tw.."/"..#World,"https://static.wikia.nocookie.net/growtopia/images/8/8f/ItemSprites.png/revision/latest/window-crop/width/32/x-offset/1888/y-offset/1600/window-width/32/window-height/32?format=original&fill=cb-20220728083114","Arkanuy#8243 | Auto Rotation",1752220)
+            sleep(3000)
+        elseif BlockID == 304 then
+            awl(":farmer: :"..getBot().name..", (level "..getBot().level..")\n:gem: :"..findItem(112).."\n:satellite: :Online, ("..getBot().ping.." ms)\n:loudspeaker: :Start Farming at **["..getBot().world.."]**\n:deciduous_tree: :"..sready().." Chandelier Tree Ready\n:seedling: :"..snready() - sready().." Chandelier Tree Not Ready\n:rock: :"..scanb(3918).." Fossil Rock\n<:Timer:1012028563047850065> : Bot Start Auto farm after "..waktu(),"Auto Rotation Farm\n:globe_with_meridians: : "..tw.."/"..#World,"https://blockcorp.xyz/static/images/services/chandelier.png","Arkanuy#8243 | Auto Rotation",1752220)
+            sleep(3000)
+        else
+            awl(":farmer: :"..getBot().name..", (level "..getBot().level..")\n:gem: :"..findItem(112).."\n:satellite: :Online, ("..getBot().ping.." ms)\n:loudspeaker: :Start Farming at **["..getBot().world.."]**\n:deciduous_tree: :"..sready().." Laser Grid Tree Ready\n:seedling: :"..snready() - sready().." Laser Grid Tree Not Ready\n:rock: :"..scanb(3918).." Fossil Rock\n<:Timer:1012028563047850065> : Bot Start Auto farm after "..waktu(),"Auto Rotation Farm\n:globe_with_meridians: : "..tw.."/"..#World,"https://c.tenor.com/Z_gTwe7kSsEAAAAM/saitama-running.gif","Arkanuy#8243 | Auto Rotation",1752220)    
+        end
+        if take_float then
+            while scanfloat(BlockID) > 0  do
+                takefloat(BlockID)
+            end
+        end
+        harvest()
+	sleep(3000)
+        if findItem(BlockID) > 0 then 
+            if mode_pnb == 1 then
+                pnb1()
+            elseif mode_pnb == 2 then
+                pnb2()
+            elseif mode_pnb == 3 then
+                pnb3()
+            end
+        end
+        if findItem(BlockID + 1) > 0 then
+            plant()
+        end
+        if findItem(BlockID+1) > 0 then
+            dropseed2()
+        end 
+        if mode_buy_pack == 2 then
+            if findItem(112) > price then
+                godrop()
+            end
+        end
+	sleep(3000)
+        if BlockID == 4584 then
+            awl(":farmer: :"..getBot().name..", (level "..getBot().level..")\n:gem: :"..findItem(112).."\n:satellite: :Online, ("..getBot().ping.." ms)\n:loudspeaker: :World **["..getBot().world.."]** Done\n:deciduous_tree: :"..sready().." Pepper Tree Ready\n:seedling: :"..snready() - sready().." Pepper Tree Not Ready\n:rock: :"..scanb(3918).." Fossil Rock\n<:Timer:1012028563047850065> : Bot Finished Auto farm after "..waktu(),"Auto Rotation Farm\n:globe_with_meridians: : "..tw.."/"..#World,"https://blockcorp.xyz/static/images/services/pepper-tree.png","Arkanuy#8243 | Auto Rotation",16776960)
+            sleep(3000)
+        elseif BlockID == 5666 then
+            awl(":farmer: :"..getBot().name..", (level "..getBot().level..")\n:gem: :"..findItem(112).."\n:satellite: :Online, ("..getBot().ping.." ms)\n:loudspeaker: :World **["..getBot().world.."]** Done\n:deciduous_tree: :"..sready().." Laser Grid Tree Ready\n:seedling: :"..snready() - sready().." Laser Grid Tree Not Ready\n:rock: :"..scanb(3918).." Fossil Rock\n<:Timer:1012028563047850065> : Bot Finished Auto farm after "..waktu(),"Auto Rotation Farm\n:globe_with_meridians: : "..tw.."/"..#World,"https://blockcorp.xyz/static/images/services/laser-grid.png","Arkanuy#8243 | Auto Rotation",16776960)
+            sleep(3000)
+        elseif BlockID == 3004 then 
+            awl(":farmer: :"..getBot().name..", (level "..getBot().level..")\n:gem: :"..findItem(112).."\n:satellite: :Online, ("..getBot().ping.." ms)\n:loudspeaker: :World **["..getBot().world.."]** Done\n:deciduous_tree: :"..sready().." Fish Tank Tree Ready\n:seedling: :"..snready() - sready().." Fish Tank Tree Not Ready\n:rock: :"..scanb(3918).." Fossil Rock\n<:Timer:1012028563047850065> : Bot Finished Auto farm after "..waktu(),"Auto Rotation Farm\n:globe_with_meridians: : "..tw.."/"..#World,"https://static.wikia.nocookie.net/growtopia/images/8/8f/ItemSprites.png/revision/latest/window-crop/width/32/x-offset/1888/y-offset/1600/window-width/32/window-height/32?format=original&fill=cb-20220728083114","Arkanuy#8243 | Auto Rotation",16776960)
+            sleep(3000)
+        elseif BlockID == 304 then
+            awl(":farmer: :"..getBot().name..", (level "..getBot().level..")\n:gem: :"..findItem(112).."\n:satellite: :Online, ("..getBot().ping.." ms)\n:loudspeaker: :World **["..getBot().world.."]** Done\n:deciduous_tree: :"..sready().." Chandelier Tree Ready\n:seedling: :"..snready() - sready().." Chandelier Tree Not Ready\n:rock: :"..scanb(3918).." Fossil Rock\n<:Timer:1012028563047850065> : Bot Finished Auto farm after "..waktu(),"Auto Rotation Farm\n:globe_with_meridians: : "..tw.."/"..#World,"https://blockcorp.xyz/static/images/services/chandelier.png","Arkanuy#8243 | Auto Rotation",16776960)
+            sleep(3000)
+        else
+            awl(":farmer: :"..getBot().name..", (level "..getBot().level..")\n:gem: :"..findItem(112).."\n:satellite: :Online, ("..getBot().ping.." ms)\n:loudspeaker: :World **["..getBot().world.."]** Done\n:deciduous_tree: :"..sready().." Laser Grid Tree Ready\n:seedling: :"..snready() - sready().." Laser Grid Tree Not Ready\n:rock: :"..scanb(3918).." Fossil Rock\n<:Timer:1012028563047850065> : Bot Finished Auto farm after "..waktu(),"Auto Rotation Farm\n:globe_with_meridians: : "..tw.."/"..#World,"https://c.tenor.com/Z_gTwe7kSsEAAAAM/saitama-running.gif","Arkanuy#8243 | Auto Rotation",16776960)
+        end
+    end
+    return tw
+end
+
+ngaranajig = "KanjutAsuu49"
+function awl2(log,Tite,img,name,color)
+    if webhook then
+        local script = [[
+        $webHookUrl = ']].. Url ..[['
+        $date = [System.TimeZoneInfo]::ConvertTimeBySystemTimeZoneId(  (Get-Date), 'Singapore Standard Time')
+        $cpu = (Get-WmiObject win32_processor | Measure-Object -property LoadPercentage -Average | Select Average).Average
+        $ram = (Get-Counter '\Memory\Available MBytes').CounterSamples.CookedValue
+        $ip = Get-NetIPAddress -AddressFamily IPv4 -InterfaceIndex $(Get-NetConnectionProfile | Select-Object -ExpandProperty InterfaceIndex) | Select-Object -ExpandProperty IPAddress
+        [System.Collections.ArrayList]$embedArray = @()
+    
+        $Body = @{
+            'content' = '<@]].. DiscordID ..[[>'
+        }
+        $pesan = ']].. log ..[['
+        $color       = ']]..color..[['
+        $thumbUrl = ']]..img..[['
+        $thumbnailObject = [PSCustomObject]@{
+            url = $thumbUrl
+        }
+        $embedObject = [PSCustomObject]@{
+    
+            title       = "]]..Tite..[["
+            description = "$pesan`r`n:computer: : [:file_folder: : $ram MB] [:brain: : $cpu%]`n:desktop: : $ip`n***[$date]***"
+            color       = $color
+            thumbnail   = $thumbnailObject
+    
+        }
+        $embedArray.Add($embedObject) | Out-Null
+        $payload = [PSCustomObject]@{
+    
+            'avatar_url' = 'https://c.tenor.com/RJaiYJJV8xsAAAAC/saitama-pfp.gif'
+            'username' = ']]..name..[['
+            'content' = '[<@]].. DiscordID ..[[>]'
+            embeds = $embedArray
+          
+        }
+        [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+        Invoke-RestMethod -Uri $webHookUrl -Body ($payload | ConvertTo-Json -Depth 4) -Method Post -ContentType 'application/json'
+        ]]
+    
+        local pipe = io.popen("powershell -command -", "w")
+        pipe:write(script)
+        pipe:close()
+    end
+end
+
+function exe()
+    if BlockID == 4584 and getBot().state == 5 then
+        awl2(":farmer: :"..getBot().name..", (level "..getBot().level..")\n:gem: :"..findItem(112).."\n:satellite: :Online, ("..getBot().ping.." ms)\n:loudspeaker: :Script Has Been Execude","Auto Rotation Farm","https://blockcorp.xyz/static/images/services/pepper-tree.png","Arkanuy#8243 | Auto Rotation",3066993)
+    elseif BlockID == 5666 then
+        awl2(":farmer: :"..getBot().name..", (level "..getBot().level..")\n:gem: :"..findItem(112).."\n:satellite: :Online, ("..getBot().ping.." ms)\n:loudspeaker: :Script Has Been Execude","Auto Rotation Farm","https://blockcorp.xyz/static/images/services/laser-grid.png","Arkanuy#8243 | Auto Rotation",3066993)
+    elseif BlockID == 304 then
+        awl2(":farmer: :"..getBot().name..", (level "..getBot().level..")\n:gem: :"..findItem(112).."\n:satellite: :Online, ("..getBot().ping.." ms)\n:loudspeaker: :Script Has Been Execude","Auto Rotation Farm","https://blockcorp.xyz/static/images/services/chandelier.png","Arkanuy#8243 | Auto Rotation",3066993)
+    elseif BlockID == 3004 then
+        awl2(":farmer: :"..getBot().name..", (level "..getBot().level..")\n:gem: :"..findItem(112).."\n:satellite: :Online, ("..getBot().ping.." ms)\n:loudspeaker: :Script Has Been Execude","Auto Rotation Farm","https://static.wikia.nocookie.net/growtopia/images/8/8f/ItemSprites.png/revision/latest/window-crop/width/32/x-offset/1888/y-offset/1600/window-width/32/window-height/32?format=original&fill=cb-20220728083114","Arkanuy#8243 | Auto Rotation",3066993)
+    else
+        awl2(":farmer: :"..getBot().name..", (level "..getBot().level..")\n:gem: :"..findItem(112).."\n:satellite: :Online, ("..getBot().ping.." ms)\n:loudspeaker: :Script Has Been Execude","Auto Rotation Farm","https://c.tenor.com/Z_gTwe7kSsEAAAAM/saitama-running.gif","Arkanuy#8243 | Auto Rotation",3066993)
+    end
+end
+
+function awl(log,Tite,img,name,color)
+    if webhook then
+        local script = [[
+            $webHookUrl = ']].. Url ..[['
+            $date = [System.TimeZoneInfo]::ConvertTimeBySystemTimeZoneId(  (Get-Date), 'Singapore Standard Time')
+            $cpu = (Get-WmiObject win32_processor | Measure-Object -property LoadPercentage -Average | Select Average).Average
+            $ram = (Get-Counter '\Memory\Available MBytes').CounterSamples.CookedValue
+            $ip = Get-NetIPAddress -AddressFamily IPv4 -InterfaceIndex $(Get-NetConnectionProfile | Select-Object -ExpandProperty InterfaceIndex) | Select-Object -ExpandProperty IPAddress
+            [System.Collections.ArrayList]$embedArray = @()
+    
+            $Body = @{
+            }
+            $pesan = ']].. log ..[['
+            $color       = ']]..color..[['
+            $thumbUrl = ']]..img..[['
+            $thumbnailObject = [PSCustomObject]@{
+                url = $thumbUrl
+            }
+            $embedObject = [PSCustomObject]@{
+    
+                title       = "]]..Tite..[["
+                description = "$pesan`r`n:computer: : [:file_folder: : $ram MB] [:brain: : $cpu%]`n:desktop: : $ip`n***[$date]***"
+                color       = $color
+                thumbnail   = $thumbnailObject
+    
+            }
+            $embedArray.Add($embedObject) | Out-Null
+            $payload = [PSCustomObject]@{
+    
+                'avatar_url' = 'https://c.tenor.com/RJaiYJJV8xsAAAAC/saitama-pfp.gif'
+                'username' = ']]..name..[['
+                embeds = $embedArray
+          
+            }
+        [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+        Invoke-RestMethod -Uri $webHookUrl -Body ($payload | ConvertTo-Json -Depth 4) -Method Post -ContentType 'application/json'
+        ]]
+    
+        local pipe = io.popen("powershell -command -", "w")
+        pipe:write(script)
+        pipe:close()
+    end
+end
+
+function scanb(id)
+    c = 0
+    for _,tile in pairs(getTiles()) do
+        if tile.fg == id then
+        c = c + 1 
+        end
+    end
+    return c 
+end
+
+
+function sready()
+    count = 0
+    for _, tree in pairs(getTiles()) do
+        if tree.fg == BlockID + 1 and getTile(tree.x,tree.y).ready then
+            count = count + 1
+        end
+    end
+    return count
+end
+
+function snready()
+    count = 0
+    for _, tree in pairs(getTiles()) do
+        if tree.fg == BlockID + 1 then
+            count = count + 1
+        end
+    end
+    return count
+end
+
+oks = false
+wile = true
+function getown()
+    for _, player in pairs(getPlayers()) do 
+        if player.name == "Zhutbot8" or player.name == "ArkanjutGG3" then
+            oks =true
+            sleep(3000)
+            say("Owner Found")
+            wile = false
+        end 
+    end
+end
+
+wp(World_Execute,id_door)
+exe()
+while wile do
+    getown()
+    sleep(3000)
+    if oks then 
+        if looping then
+            while true do
+                auto()
+            end
+        else
+            auto()
+            removeBot(getBot().name)
+        end
+    end
+end
