@@ -1,4 +1,4 @@
-function facek()
+function faceak()
     pkt = {}
     pkt.type = 0
     pkt.posX = getBot().x
